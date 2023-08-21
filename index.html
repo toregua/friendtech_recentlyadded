@@ -4,7 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
-    <title>Friend tech recently added</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script> <!-- Popper.js pour les infobulles -->
+    <title>FriendTech recently joined</title>
 </head>
 <body>
     <div class="container mt-4">
@@ -13,14 +14,34 @@
                 <tr>
                     <th>Twitter Name</th>
                     <th>Profile Picture</th>
+                    <th>Action</th>
                 </tr>
             </thead>
-            <tbody>
-            </tbody>
+            <tbody></tbody>
         </table>
     </div>
 
     <script>
+        function copyToClipboard(text, button) {
+            var tempInput = document.createElement('input');
+            tempInput.style = 'position: absolute; left: -1000px; top: -1000px';
+            tempInput.value = text;
+            document.body.appendChild(tempInput);
+            tempInput.select();
+            document.execCommand('copy');
+            document.body.removeChild(tempInput);
+
+            // Configurer l'infobulle
+            button.setAttribute('data-original-title', `${text} has been copied`);
+            $(button).tooltip('show');
+
+            // Réinitialiser l'infobulle après 3 secondes
+            setTimeout(() => {
+                button.setAttribute('data-original-title', 'Copy Username to Clipboard');
+                $(button).tooltip('hide');
+            }, 3000);
+        }
+
         fetch('https://prod-api.kosetto.com/lists/recently-joined')
             .then(response => response.json())
             .then(data => {
@@ -28,25 +49,35 @@
 
                 data.users.forEach(user => {
                     let row = tableBody.insertRow();
-                    
-                    // Twitter Name
                     let cell1 = row.insertCell(0);
                     cell1.innerHTML = user.twitterName;
 
-                    // Profile Picture
                     let cell2 = row.insertCell(1);
                     let link = document.createElement('a');
                     link.href = `https://twitter.com/${user.twitterUsername}`;
-                    link.target = "_blank"; 
+                    link.target = "_blank";
                     let image = document.createElement('img');
                     image.src = user.twitterPfpUrl;
                     image.alt = user.twitterName;
                     image.width = 50;
                     link.appendChild(image);
                     cell2.appendChild(link);
+
+                    let cell3 = row.insertCell(2);
+                    let button = document.createElement('button');
+                    button.className = 'btn btn-primary';
+                    button.innerHTML = 'Copy';
+                    button.title = 'Copy Username to Clipboard';
+                    button.setAttribute('data-toggle', 'tooltip');
+                    button.onclick = function() { copyToClipboard(user.twitterUsername, button); };
+                    cell3.appendChild(button);
+                    $(button).tooltip(); // Initialiser l'infobulle
                 });
             })
-            .catch(error => console.error('Error:', error));
+            .catch(error => console.error('Error :', error));
     </script>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 </body>
 </html>
