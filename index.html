@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <title>Friend tech recently added</title>
+</head>
+<body>
+    <div class="container mt-4">
+        <table class="table table-striped" id="userTable">
+            <thead>
+                <tr>
+                    <th>Twitter Name</th>
+                    <th>Profile Picture</th>
+                </tr>
+            </thead>
+            <tbody>
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        fetch('https://prod-api.kosetto.com/lists/recently-joined')
+            .then(response => response.json())
+            .then(data => {
+                const tableBody = document.getElementById('userTable').getElementsByTagName('tbody')[0];
+
+                data.users.forEach(user => {
+                    let row = tableBody.insertRow();
+                    
+                    // Twitter Name
+                    let cell1 = row.insertCell(0);
+                    cell1.innerHTML = user.twitterName;
+
+                    // Profile Picture
+                    let cell2 = row.insertCell(1);
+                    let link = document.createElement('a');
+                    link.href = `https://twitter.com/${user.twitterUsername}`;
+                    link.target = "_blank"; 
+                    let image = document.createElement('img');
+                    image.src = user.twitterPfpUrl;
+                    image.alt = user.twitterName;
+                    image.width = 50;
+                    link.appendChild(image);
+                    cell2.appendChild(link);
+                });
+            })
+            .catch(error => console.error('Error:', error));
+    </script>
+</body>
+</html>
